@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}法考自律打卡{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <a href="/" class="site-title"><span>法考</span>打卡</a>
+    <nav class="nav-links">
+      <a href="{{ url_for('dashboard.home') }}" class="{% if request.endpoint and 'dashboard' in request.endpoint %}active{% endif %}">仪表盘</a>
+      <a href="{{ url_for('schedule.view') }}" class="{% if request.endpoint and 'schedule' in request.endpoint %}active{% endif %}">课程表</a>
+      <a href="{{ url_for('checkin.history') }}" class="{% if request.endpoint and 'checkin' in request.endpoint %}active{% endif %}">打卡记录</a>
+    </nav>
+    <div class="header-actions">
+      <button class="theme-toggle" id="themeToggle" title="切换主题" aria-label="切换主题">🌙</button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    2026 法考备考 · 客观题 9.12-13 · 主观题 10.18
+  </footer>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

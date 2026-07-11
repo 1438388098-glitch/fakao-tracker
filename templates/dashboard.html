@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Fakao{% endblock %}
+{% block content %}
+
+<!-- Row 1: Four stat cards -->
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+  <div class="card" style="text-align:center;padding:18px 12px">
+    <div style="font-size:2.2rem;font-weight:700;color:var(--accent);font-family:var(--font-serif)">{{ days_left }}</div>
+    <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:2px">Days to 9.12</div>
+  </div>
+  <div class="card" style="text-align:center;padding:18px 12px">
+    <div style="font-size:2.2rem;font-weight:700;font-family:var(--font-serif)" id="streakNum">{{ streak }}</div>
+    <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:2px">Day Streak</div>
+  </div>
+  <div class="card" style="text-align:center;padding:18px 12px">
+    <div style="font-size:2.2rem;font-weight:700;font-family:var(--font-serif)">{{ week_stats.checked }}<span style="font-size:1rem;color:var(--text-tertiary)">/{{ week_stats.total - week_stats.remaining }}</span></div>
+    <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:2px">This Week</div>
+  </div>
+  <div class="card" style="text-align:center;padding:18px 12px">
+    <div style="font-size:2.2rem;font-weight:700;font-family:var(--font-serif)">{{ (week_stats.minutes/60)|round(1) }}<span style="font-size:1rem;color:var(--text-tertiary)">h</span></div>
+    <div style="font-size:0.72rem;color:var(--text-tertiary);margin-top:2px">Week Total</div>
+  </div>
+</div>
+
+<!-- Controls bar -->
+<div style="display:flex;gap:8px;margin-bottom:16px;align-items:center">
+  <span style="font-size:0.78rem;color:var(--text-secondary)"><span id="paceLabel">--</span></span>
+  <span style="flex:1"></span>
+  <span style="font-size:0.72rem;color:var(--text-tertiary)">Adjust:</span>
+  <button class="btn btn-sm" onclick="shiftSchedule(-1)">-1</button>
+  <button class="btn btn-sm" onclick="shiftSchedule(1)">+1</button>
+  <span style="color:var(--border);margin:0 4px">|</span>
+  <button class="btn btn-sm" onclick="backupData()">Backup</button>
+</div>
+
+{% if today_plan %}
+<!-- Row 2: Today's Schedule + Checkin -->
+<div class="card dash-full" style="margin-bottom:16px">
+  <div class="today-header">
+    <span class="today-badge">TODAY</span>
+    <span class="today-subj">
+      {% if today_plan.subject %}{{ today_plan.subject.emoji }} {{ today_plan.subject.name }}{% endif %}
+      &middot; {{ today_plan.day_label }}
+    </span>
+    <span style="margin-left:auto;font-size:0.78rem;color:var(--text-tertiary)">{{ today_plan.planned_minutes }}min video</span>
+  </div>
+  <!-- Time progress bar -->
+  <div class="time-progress" id="timeProgress">
+    <div class="time-progress-bar" id="timeBar"></div>
+    <div class="time-progress-marker" id="timeMarker" style="left:0%"></div>
+  </div>
+  <div class="time-progress-labels">
+    <span>09:00</span><span>12:00</span><span>13:30</span><span>17:30</span><span>19:00</span><span>21:00</span><span>22:00</span>
+  </div>
+
+  <div class="today-slots" id="todaySlots">
+    {% set slots = [
+      ('MORNING','09:00','12:00', today_plan.morning_items),
+      ('AFTERNOON','13:30','17:30', today_plan.afternoon_items),
+      ('EVENING','19:00','21:00', today_plan.evening_items),
+      ('REVIEW','21:00','22:00', None)
+    ] %}
+    {% for sname, sstart, send, sdata in slots %}
+    <div class="slot" data-start="{{ sstart }}" data-end="{{ send }}" id="slot{{ loop.index0 }}">
+      <div class="slot-hd">{{ sname }}</div>
+      <div class="slot-time">{{ sstart }} &mdash; {{ send }}</div>
+      {% if sdata %}
+      {% for line in sdata.split('\n') %}
+      <span class="slot-item">{{ line }}</span>
+      {% endfor %}
+      {% else %}
+      <span class="slot-item">Review mistakes &amp; notes. No new content.</span>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Checkin bar -->
+<div class="checkin-bar">
+  {% if checkin and checkin.completed %}
+  <div class="checkin-done-badge show" id="chkDone">Checked In Today</div>
+  <div id="chkWrap" style="display:none"></div>
+  {% else %}
+  <div class="checkin-done-badge" id="chkDone"></div>
+  <div id="chkWrap">
+    <button class="btn btn-primary btn-lg anim-pop" onclick="doCheckin()">Check In</button>
+  </div>
+  {% endif %}
+  <div class="mood-row" data-v="0">
+    <button class="mood-dot" onclick="selMood(this,1)">1</button>
+    <button class="mood-dot" onclick="selMood(this,2)">2</button>
+    <button class="mood-dot" onclick="selMood(this,3)">3</button>
+    <button class="mood-dot" onclick="selMood(this,4)">4</button>
+    <button class="mood-dot" onclick="selMood(this,5)">5</button>
+  </div>
+  <input class="notes-inp" id="chkNotes" placeholder="Notes (optional)">
+</div>
+
+{% else %}
+<div class="card empty" style="margin-bottom:16px">
+  <div class="empty-icon">Calendar</div>
+  <div class="empty-text">No plan for today. Plan starts June 6.</div>
+</div>
+{% endif %}
+
+<!-- Row 3: This Week Timeline -->
+<div class="card" style="margin-bottom:16px">
+  <div class="card-header">
+    <span class="card-title">This Week</span>
+    <span style="font-size:0.78rem;color:var(--text-tertiary)">
+      {{ week_days[0].month }}/{{ week_days[0].day }} - {{ week_days[6].month }}/{{ week_days[6].day }}
+    </span>
+  </div>
+  <div class="week-timeline">
+    {% set wds = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] %}
+    {% for d in week_days %}
+    {% set plan = week_plans.get(d) %}
+    {% set cin = week_checkins.get(d) %}
+    {% set is_t = d == today %}
+    {% set is_chk = cin and cin.completed %}
+    {% set is_fut = d > today %}
+    {% set is_rst = plan and plan.task_type == 'rest' %}
+    <div class="wt-day {{ 'today' if is_t }} {{ 'checked' if is_chk }}" title="{{ plan.day_label if plan else '' }}">
+      <div class="wt-date">{{ d.month }}/{{ d.day }}</div>
+      <div class="wt-wd">{{ wds[d.weekday()] }}</div>
+      {% if plan and plan.subject %}
+      <div class="wt-subj" style="background:{{ plan.subject.color }}">{{ plan.subject.name }}</div>
+      {% elif plan %}
+      <div class="wt-subj" style="background:var(--text-tertiary)">{{ plan.task_type }}</div>
+      {% endif %}
+      {% if plan and plan.planned_minutes > 0 %}
+      <div class="wt-min">{{ plan.planned_minutes }}min</div>
+      <div class="wt-bar"><div class="wt-bar-inner" style="width:{{ [plan.planned_minutes/420*100,100]|min|int }}%;background:{{ plan.subject.color if plan.subject else 'var(--accent)' }}"></div></div>
+      {% endif %}
+      <div class="wt-status">
+        {% if is_chk %}Done
+        {% elif is_rst %}&mdash;
+        {% elif is_fut %}&middot;{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Row 4: Phase Progress -->
+{% if phase_stats %}
+<div class="card" style="margin-bottom:16px">
+  <div class="card-header"><span class="card-title">Phase Progress</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 24px">
+    {% for ps in phase_stats %}
+    <div class="progress-item">
+      <div class="progress-lbl"><span>{{ ps.name }}</span><span><strong>{{ ps.checked }}</strong>/{{ ps.total }} days</span></div>
+      <div class="progress-bar"><div class="progress-fill {{ 'green' if ps.pct>=50 }}" style="width:{{ ps.pct }}%"></div></div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Time tracking: progress bar + active slot highlight
+(function(){
+  var START=9*60, END=22*60; // 9:00-22:00 in minutes
+  var slots=[
+    {el:document.getElementById('slot0'),s:9*60,e:12*60},
+    {el:document.getElementById('slot1'),s:13*60+30,e:17*60+30},
+    {el:document.getElementById('slot2'),s:19*60,e:21*60},
+    {el:document.getElementById('slot3'),s:21*60,e:22*60}
+  ];
+  function update(){
+    var now=new Date();
+    var min=now.getHours()*60+now.getMinutes();
+    var pct=Math.max(0,Math.min(100,((min-START)/(END-START))*100));
+    var bar=document.getElementById('timeBar');
+    var marker=document.getElementById('timeMarker');
+    if(bar)bar.style.width=pct+'%';
+    if(marker)marker.style.left=pct+'%';
+
+    slots.forEach(function(s){
+      if(!s.el)return;
+      s.el.classList.remove('active','past');
+      if(min>=s.s&&min<s.e)s.el.classList.add('active');
+      else if(min>=s.e)s.el.classList.add('past');
+    });
+  }
+  update();
+  setInterval(update,30000);
+})();
+
+function doCheckin(){
+  var m=document.querySelector('.mood-row');
+  var mood=parseInt(m?m.dataset.v||'0':'0');
+  var n=document.getElementById('chkNotes');
+  var notes=n?n.value:'';
+  fetch('/api/checkin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mood:mood,notes:notes})})
+  .then(function(r){return r.json()})
+  .then(function(d){
+    if(d.ok){
+      document.getElementById('chkDone').classList.add('show');
+      document.getElementById('chkWrap').style.display='none';
+      showToast('Checked in!');
+      // Update streak
+      var sn=document.getElementById('streakNum');
+      if(sn)sn.textContent=parseInt(sn.textContent||'0')+1;
+    }else{showToast('Error: '+(d.error||'unknown'))}
+  }).catch(function(){showToast('Network error')});
+}
+function selMood(el,v){
+  document.querySelectorAll('.mood-dot').forEach(function(b){b.classList.remove('sel')});
+  el.classList.add('sel');
+  el.closest('.mood-row').dataset.v=v;
+}
+
+// Pace tracking
+(function(){
+  fetch('/api/status').then(function(r){return r.json()}).then(function(d){
+    var el=document.getElementById('paceLabel');
+    if(el){
+      if(d.ahead_by>0)el.textContent='Ahead by '+d.ahead_by+' day'+(d.ahead_by>1?'s':'');
+      else if(d.today_checked)el.textContent='On track';
+      else el.textContent='Plan for today pending';
+    }
+  });
+})();
+
+// Backup
+function backupData(){
+  fetch('/api/backup').then(function(r){return r.json()}).then(function(d){
+    if(d.ok)showToast('Backed up '+d.checkins+' checkins to data/backups/');
+    else showToast('Backup failed');
+  }).catch(function(){showToast('Network error')});
+}
+
+// Evening reminder: check at 20:00-22:00 if not checked in
+(function(){
+  var CHECK_HOUR=20;
+  function check(){
+    var now=new Date();
+    if(now.getHours()>=CHECK_HOUR&&now.getHours()<22){
+      fetch('/api/status').then(function(r){return r.json()}).then(function(d){
+        if(!d.today_checked&&Notification.permission==='granted'){
+          new Notification('Study check-in',{body:'You haven\'t checked in today. Don\'t break the streak!',icon:'data:,F'});
+        }
+      });
+    }
+  }
+  if('Notification' in window&&Notification.permission==='default'){
+    setTimeout(function(){Notification.requestPermission()},5000);
+  }
+  // Check at 20:05
+  var target=new Date();target.setHours(CHECK_HOUR,5,0,0);
+  if(target<new Date())target.setDate(target.getDate()+1);
+  setTimeout(function(){check();setInterval(check,3600000)},target.getTime()-Date.now());
+})();
+
+function shiftSchedule(days){
+  if(!confirm('Shift all future uncompleted plans by '+days+' day'+(Math.abs(days)>1?'s':'')+'?'))return;
+  fetch('/api/reschedule',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({days:days})})
+  .then(function(r){return r.json()})
+  .then(function(d){
+    if(d.ok){showToast('Shifted '+d.shifted+' plans. Reloading...');setTimeout(function(){location.reload()},800)}
+    else showToast('Error: '+(d.error||'unknown'));
+  });
+}
+</script>
+{% endblock %}

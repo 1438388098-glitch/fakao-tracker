@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Schedule - Fakao{% endblock %}
+{% block content %}
+
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+  <h2 style="font-family:var(--font-serif);font-size:1.15rem;font-weight:600">Full Schedule</h2>
+  <span style="font-size:0.78rem;color:var(--text-tertiary)">45 days &middot; 3 slots/day &middot; 1.5-2x speed</span>
+</div>
+
+<div class="phase-tabs">
+  {% for pn in phase_names %}
+  <button class="phase-tab {{ 'active' if loop.first }}" onclick="switchPhase(this,'{{ pn }}')">{{ pn }}</button>
+  {% endfor %}
+</div>
+
+{% set wdn = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] %}
+
+{% for pn, months in phase_data.items() %}
+<div class="phase-content {{ 'active' if loop.first }}" id="phase-{{ pn }}">
+  {% for month_label, weeks in months %}
+  <div class="timeline-hdr">{{ month_label }}</div>
+
+  {% for week in weeks %}
+  <div class="tl-wk-label">{{ week.start.month }}/{{ week.start.day }} - {{ week.end.month }}/{{ week.end.day }}</div>
+  <div class="tl-grid">
+    {% for day_info in week.days %}
+    {% set d = day_info.date %}
+    {% set plan = day_info.plan %}
+    {% set cin = checkin_map.get(d) %}
+    {% set is_t = d == today %}
+    {% set is_done = cin and cin.completed %}
+    {% set is_past = d <= today %}
+    {% set is_rst = plan and plan.task_type == 'rest' %}
+    <div class="tl-node {{ 'today' if is_t }} {{ 'done' if is_done }}">
+      <div class="tl-d">{{ d.month }}/{{ d.day }}</div>
+      {% if plan and plan.subject %}
+      <div class="tl-s" style="color:{{ plan.subject.color }};font-weight:600">{{ plan.subject.name[:3] }}</div>
+      {% elif plan %}
+      <div class="tl-s">{{ plan.task_type[:3] }}</div>
+      {% endif %}
+      <div class="tl-st">
+        {% if is_done %}Done
+        {% elif is_rst %}&mdash;
+        {% elif is_past %}&mdash;{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+  {% endfor %}
+</div>
+{% endfor %}
+
+{% endblock %}

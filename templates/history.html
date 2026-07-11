@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}History - Fakao{% endblock %}
+{% block content %}
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-num">{{ total_days }}</div>
+    <div class="stat-lbl">Days Checked In</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ planned_days }}</div>
+    <div class="stat-lbl">Planned Days</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ (total_minutes/60)|round(1) if total_minutes else 0 }}h</div>
+    <div class="stat-lbl">Total Hours</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num">{{ on_track_pct }}%</div>
+    <div class="stat-lbl">On Track</div>
+  </div>
+</div>
+
+<div class="card">
+  {% if checkins %}
+  <ul class="history-list">
+    {% for ci in checkins %}
+    <li class="history-item">
+      <span class="hist-d">{{ ci.check_date.month }}/{{ ci.check_date.day }} <span style="font-size:0.65rem;color:var(--text-tertiary);display:block">{% set wd=ci.check_date.weekday() %}{{ ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][wd] }}</span></span>
+      {% if ci.completed %}
+      <span class="hist-s done">Done</span>
+      {% else %}
+      <span class="hist-s miss">Miss</span>
+      {% endif %}
+      {% if ci.actual_minutes %}<span style="font-size:0.78rem;color:var(--text-secondary);min-width:40px">{{ (ci.actual_minutes/60)|round(1) }}h</span>{% endif %}
+      <span class="hist-notes">{{ ci.notes or '' }}</span>
+      {% if ci.mood and ci.mood>0 %}<span style="font-size:0.9rem">{{ ['','1','2','3','4','5'][ci.mood] }}</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="empty"><div class="empty-icon">Empty</div><div class="empty-text">No check-ins yet. Start from the Dashboard.</div></div>
+  {% endif %}
+</div>
+
+{% endblock %}
