@@ -1,58 +1,56 @@
-# 法考打卡
+English · [简体中文](./README.zh-CN.md)
 
-2026 法考备考追踪 · 45 天精讲计划 · 每日三段式学习 · 打卡 + 进度追踪
+# Fakao Check-in (法考打卡)
 
-> **TL;DR (English):** A local-first Flask web app that tracks daily study check-ins against a 45-day exam prep plan, split into morning / afternoon / evening / review slots. On first run it creates a local SQLite database and seeds the schedule automatically. All check-ins and backups stay on your machine — nothing is uploaded anywhere. Run `启动.bat` and open <http://127.0.0.1:5000>.
+A local-first Flask web app that tracks daily study check-ins against a 45-day prep plan for the 2026 National Legal Professional Examination (法考), split into morning / afternoon / evening / review slots. 45-day intensive plan · daily three-part study routine · check-ins + progress tracking. On first run it creates a local SQLite database and seeds the schedule automatically. All check-ins and backups stay on your machine — nothing is uploaded anywhere. Run `启动.bat` and open <http://127.0.0.1:5000>.
 
----
+## How to use
 
-## 怎么用
+### If you have Python on your computer
 
-### 电脑上有 Python 的话
+1. Extract to any folder
+2. Double-click `启动.bat` — it installs the dependencies and starts automatically
+3. The browser opens `http://127.0.0.1:5000` automatically
 
-1. 解压到任意文件夹
-2. 双击 `启动.bat`，自动安装依赖并启动
-3. 浏览器会自动打开 `http://127.0.0.1:5000`
+### If Python is not installed
 
-### 没装 Python 的话
+Download and install Python 3.7 or later from [python.org](https://www.python.org/downloads/), tick "Add Python to PATH" during installation, then double-click `启动.bat`.
 
-先去 [python.org](https://www.python.org/downloads/) 下载安装 Python 3.7 以上版本，安装时勾选"Add Python to PATH"，然后双击 `启动.bat`。
+### Daily usage
 
-### 每天怎么用
+1. Open the site; the dashboard shows what to study today (four slots: morning / afternoon / evening / review)
+2. Tick a slot once it is done
+3. In the evening, click Check In after finishing everything
+4. Ahead of or behind schedule? Click Prev/Next to shift the plan
 
-1. 打开网站，仪表盘显示今天该学什么（上午/下午/晚上/复习四个时段）
-2. 学完一个时段打个勾
-3. 晚上全部学完点 Check In
-4. 学快了或拖了一天，点 Prev/Next 调整计划
+### Backup
 
-### 备份
+Click the Backup button at the top right of the dashboard. Backup files live in `data/backups/`.
 
-点仪表盘右上角 Backup 按钮。备份文件在 `data/backups/` 里。
+### Dark mode
 
-### 暗色模式
-
-点右上角月亮图标切换。
+Click the moon icon at the top right to toggle.
 
 ---
 
-## 学习时段
+## Study sessions
 
-| 时段 | 时间 | 做什么 |
+| Slot | Time | What to do |
 |---|---|---|
-| 上午 | 09:00 — 12:00 | 看视频 + 记笔记（~170 分钟有效时间） |
-| 下午 | 13:30 — 17:30 | 看视频 + 做真金题（~230 分钟） |
-| 晚上 | 19:00 — 21:00 | 做真金题（~110 分钟） |
-| 复习 | 21:00 — 22:00 | 回顾今日错题和笔记，不学新内容 |
+| Morning | 09:00 — 12:00 | Watch videos + take notes (~170 min effective time) |
+| Afternoon | 13:30 — 17:30 | Watch videos + past exam questions (~230 min) |
+| Evening | 19:00 — 21:00 | Past exam questions (~110 min) |
+| Review | 21:00 — 22:00 | Review today's mistakes and notes; no new content |
 
-视频建议 1.5—2 倍速观看，计划里列的是原始时长。
+Videos are best watched at 1.5–2x speed; the plan lists original durations.
 
 ---
 
-## 数据
+## Data
 
-数据本地自备，本仓库不含任何个人学习数据：
+Bring your own data; this repository contains no personal study data:
 
-- 首次运行自动创建 `data/` 目录和 `data/fakao.db`（SQLite 文件），并按内置计划生成 45 天日程
-- 打卡记录与备份（`data/backups/`）只保存在本地，不上传任何地方
-- 想调整计划：修改 `scripts/gen_excel_v3.py` / `database/seed.py` 后删除 `data/fakao.db`，重启即自动重新生成
-- `data/` 已加入 `.gitignore`，请勿把个人备考数据提交到公开仓库
+- The first run automatically creates the `data/` directory and `data/fakao.db` (SQLite file), and generates the 45-day schedule from the built-in plan
+- Check-in records and backups (`data/backups/`) stay on this machine only — nothing is uploaded anywhere
+- To adjust the plan: edit `scripts/gen_excel_v3.py` / `database/seed.py`, delete `data/fakao.db`, and restart — it regenerates automatically
+- `data/` is in `.gitignore`; never commit personal exam-prep data to a public repository
