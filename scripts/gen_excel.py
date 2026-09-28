@@ -6,7 +6,7 @@ from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 
 # Load data
-with open(r'D:\Claudeworkspace\fakao-tracker\data\phase1_daily.json', 'r', encoding='utf-8') as f:
+with open('data/phase1_daily.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 # Subject colors (light fills)
@@ -252,7 +252,7 @@ ws3.column_dimensions['G'].width = 18
 ws3.column_dimensions['H'].width = 20
 
 # Save
-out = r'D:\Claudeworkspace\法考一轮复习计划_2026.xlsx'
+out = '法考一轮复习计划.xlsx'
 wb.save(out)
 print(f'Saved to: {out}')
 print(f'Sheets: 日程总览({len(data)}行) + 分科详情(7科) + 打卡记录({len(data)}行)')

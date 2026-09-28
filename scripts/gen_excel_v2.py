@@ -548,7 +548,7 @@ ws3.column_dimensions['C'].width = 22
 ws3.column_dimensions['D'].width = 70
 
 # Save
-out = r'D:\Claudeworkspace\法考一轮复习计划_2026.xlsx'
+out = '法考一轮复习计划.xlsx'
 wb.save(out)
 print(f'Done: {out}')
 print(f'Row count: {len(rows)} days')

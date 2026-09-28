@@ -44,7 +44,10 @@ def seed_daily_plans():
         '理论法': 'theory',
     }
 
-    start = date(2026, 6, 6)
+    import os
+    from datetime import date as _date, timedelta as _td
+    start = (_date.fromisoformat(os.environ["FAKAO_START_DATE"])
+             if os.environ.get("FAKAO_START_DATE") else _date.today())
     current = start
     order_idx = 0
 
@@ -86,9 +89,9 @@ def seed_daily_plans():
             order_idx += 1
 
     # Add remaining phases (simplified)
-    _add_phase2(date(2026, 7, 21), order_idx)
-    _add_phase3(date(2026, 8, 31), order_idx + 33)
-    _add_exam_and_subjective(date(2026, 9, 12), date(2026, 10, 18), order_idx + 45)
+    _add_phase2(start + _td(days=45), order_idx)
+    _add_phase3(start + _td(days=86), order_idx + 33)
+    _add_exam_and_subjective(start + _td(days=98), start + _td(days=134), order_idx + 45)
 
 
 def _add_phase2(start, order):

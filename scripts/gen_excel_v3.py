@@ -477,7 +477,7 @@ ws2.column_dimensions['I'].width=6
 ws2.column_dimensions['J'].width=12
 
 # Print summary
-out=r'D:\Claudeworkspace\法考一轮复习计划_2026.xlsx'
+out='法考一轮复习计划.xlsx'
 wb.save(out)
 
 print(f'Phase 1: {len(rows)} days ({start} → {end})')

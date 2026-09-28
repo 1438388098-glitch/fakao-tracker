@@ -124,7 +124,7 @@ subjects['intl_law'] = {
 # ── Build Phase 1 daily plan ──
 # Order: 刑法→民法→民诉→刑诉→行政→商法→理论
 # (三国/经济法/知产 left for Phase 2 or later)
-# Start date: 2026-06-06
+# 起始日期：默认取运行当天，可用环境变量 FAKAO_START_DATE 固定
 
 order = ['criminal_law', 'civil_law', 'civil_proc', 'crim_proc',
          'admin_law', 'commercial', 'theory']
@@ -160,7 +160,7 @@ for dp in daily_plans:
     print(f"          {dp['topics'][:100]}")
 
 # Save
-out_path = r'D:\Claudeworkspace\fakao-tracker\data\phase1_daily.json'
+out_path = 'data/phase1_daily.json'
 os.makedirs(os.path.dirname(out_path), exist_ok=True)
 with open(out_path, 'w', encoding='utf-8') as f:
     json.dump(daily_plans, f, ensure_ascii=False, indent=2)
