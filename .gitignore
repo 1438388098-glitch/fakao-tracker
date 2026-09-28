@@ -9,9 +9,8 @@ build/
 .venv/
 venv/
 
-# Data (SQLite)
-data/*.db
-data/backups/
+# Data (personal study records, local only - not for public repos)
+data/
 
 # IDE
 .vscode/

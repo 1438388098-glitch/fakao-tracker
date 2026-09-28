@@ -2,6 +2,8 @@
 
 2026 法考备考追踪 · 45 天精讲计划 · 每日三段式学习 · 打卡 + 进度追踪
 
+> **TL;DR (English):** A local-first Flask web app that tracks daily study check-ins against a 45-day exam prep plan, split into morning / afternoon / evening / review slots. On first run it creates a local SQLite database and seeds the schedule automatically. All check-ins and backups stay on your machine — nothing is uploaded anywhere. Run `启动.bat` and open <http://127.0.0.1:5000>.
+
 ---
 
 ## 怎么用
@@ -48,4 +50,9 @@
 
 ## 数据
 
-所有数据在 `data/fakao.db`（SQLite 文件），只在本地，不上传任何地方。
+数据本地自备，本仓库不含任何个人学习数据：
+
+- 首次运行自动创建 `data/` 目录和 `data/fakao.db`（SQLite 文件），并按内置计划生成 45 天日程
+- 打卡记录与备份（`data/backups/`）只保存在本地，不上传任何地方
+- 想调整计划：修改 `scripts/gen_excel_v3.py` / `database/seed.py` 后删除 `data/fakao.db`，重启即自动重新生成
+- `data/` 已加入 `.gitignore`，请勿把个人备考数据提交到公开仓库
