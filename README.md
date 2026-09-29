@@ -2,7 +2,7 @@ English · [简体中文](./README.zh-CN.md)
 
 # Fakao Check-in (法考打卡)
 
-A local-first Flask web app that tracks daily study check-ins against a 45-day prep plan for the 2026 National Legal Professional Examination (法考), split into morning / afternoon / evening / review slots. 45-day intensive plan · daily three-part study routine · check-ins + progress tracking. On first run it creates a local SQLite database and seeds the schedule automatically. All check-ins and backups stay on your machine — nothing is uploaded anywhere. Run `启动.bat` and open <http://127.0.0.1:5000>.
+A local-first Flask web app that tracks daily study check-ins against a built-in multi-stage prep plan for the 2026 National Legal Professional Examination (法考) — stage 1 is a 45-day intensive-lecture phase, with the later stages (past questions + memorization, final sprint, exam days, subjective-question phase) scheduled automatically — split into morning / afternoon / evening / review slots. Daily three-part study routine · check-ins + progress tracking. On first run it creates a local SQLite database and seeds the schedule automatically. All check-ins and backups stay on your machine — nothing is uploaded anywhere. Run `启动.bat` and open <http://127.0.0.1:5000>.
 
 ## How to use
 
@@ -50,7 +50,7 @@ Videos are best watched at 1.5–2x speed; the plan lists original durations.
 
 Bring your own data; this repository contains no personal study data:
 
-- The first run automatically creates the `data/` directory and `data/fakao.db` (SQLite file), and generates the 45-day schedule from the built-in plan
+- The first run automatically creates the `data/` directory and `data/fakao.db` (SQLite file), and generates the full multi-stage schedule from the built-in plan (stage 1: 45-day intensive lectures; then past questions + memorization, final sprint, exam days, and the subjective-question phase, all laid out automatically)
 - Check-in records and backups (`data/backups/`) stay on this machine only — nothing is uploaded anywhere
 - To adjust the plan: edit `scripts/gen_excel_v3.py` / `database/seed.py`, delete `data/fakao.db`, and restart — it regenerates automatically
 - `data/` is in `.gitignore`; never commit personal exam-prep data to a public repository
